@@ -11,8 +11,12 @@ namespace BAL.Interfaces.DynamicTeportingTool
     {
         Task<DataTable> GetAllTableDataList(string tableName);
         string SaveReport(DynamicReportingTool_DTO data);
-        Task<DataTable> GetJsonReportForUser( );
+        Task<DataTable> GetJsonReportForUser(string reportId);
+        Task<DataTable> archiveSelectedReports(int reportId);
         Task<DataTable> GetAllDataFromReportContent();
-        Task<string> UpdateReportToShow(int reportId);
+        Task<DataTable> restoreSelectedReports(int reportId);
+        string SaveReportUrl(Report_DTO data);
+        Task<DataTable> GetReporturl();
+        Task<DataTable> GetUrlLinkAndJsonAliasName(int queryid);
     }
 }

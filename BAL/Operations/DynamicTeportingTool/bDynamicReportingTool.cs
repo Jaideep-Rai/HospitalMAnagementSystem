@@ -35,17 +35,42 @@ namespace BAL.Operations.DynamicTeportingTool
             try
             {
                 _MyCommand.Clear_CommandParameter();
-                string InsertReportContentQuery = "INSERT INTO reportcontentmaster(reportname,reportcontent,createdOn,createdBy,updatedOn,updatedBy)" +
-                "values(@prm_reportname, @prm_reportcontent,curdate(),@prm_createdBy,curdate(),@prm_updatedBy); ";
+                string InsertReportContentQuery = "INSERT INTO reportcontent(reportid,reportname,reportcontent,derivedvariable,viewaspercentvariables,userrole,reportdescription,status,createdon,createdby,updatedon,updatedby)" +
+                "values(@prm_reportid,@prm_reportname, @prm_reportcontent,@prm_derivedvariable, @prm_viewaspercentvariables,@prm_userrole,@prm_reportdescription,@prm_status,curdate(),@prm_createdby,curdate(),@prm_updatedby); ";
 
+                string UpdateReportContentQuery = "Update reportcontent set reportname =@prm_reportname, " +
+                    "reportcontent = @prm_reportcontent," +
+                    "derivedvariable=@prm_derivedvariable," +
+                    "viewaspercentvariables=@prm_viewaspercentvariables," +
+                    "userrole=@prm_userrole," +
+                    "reportdescription=@prm_reportdescription," +
+                    "status=@prm_status," +
+                    "createdon=curdate()," +
+                    "createdby=@prm_createdby," +
+                    "updatedon=curdate()," +
+                    "updatedby=@prm_updatedby" +
+                    "where reportid= @prm_reportid";
+                _MyCommand.Add_Parameter_WithValue("@prm_reportid", data.reportid);
                 _MyCommand.Add_Parameter_WithValue("@prm_reportname", data.reportname);
                 _MyCommand.Add_Parameter_WithValue("@prm_reportcontent", data.reportcontent);
-                //_MyCommand.Add_Parameter_WithValue("@prm_createdOn", );
-                _MyCommand.Add_Parameter_WithValue("@prm_createdBy", "admin");
-                //_MyCommand.Add_Parameter_WithValue("@prm_updatedOn", curdate());
-                _MyCommand.Add_Parameter_WithValue("@prm_updatedBy", "admin");
+                _MyCommand.Add_Parameter_WithValue("@prm_derivedvariable", data.derivedvariable);
+                _MyCommand.Add_Parameter_WithValue("@prm_viewaspercentvariables", data.viewaspercentvariables);
+                _MyCommand.Add_Parameter_WithValue("@prm_userrole", data.userrole);
+                _MyCommand.Add_Parameter_WithValue("@prm_reportdescription", data.reportdescription);
+                _MyCommand.Add_Parameter_WithValue("@prm_status", "Active");
+                _MyCommand.Add_Parameter_WithValue("@prm_createdby", "admin");
+                _MyCommand.Add_Parameter_WithValue("@prm_updatedby", "admin");
+                if(data.publishas == "new")
+                {
+                    _MyCommand.Execute_Query(InsertReportContentQuery, CommandType.Text);
+                }
+                else
+                {
+                    _MyCommand.Execute_Query(UpdateReportContentQuery, CommandType.Text);
+                }
 
-                _MyCommand.Execute_Query(InsertReportContentQuery, CommandType.Text);
+
+               
                 return "true";
             }
             catch (Exception ex)
@@ -60,16 +85,35 @@ namespace BAL.Operations.DynamicTeportingTool
         }
 
 
-        public async Task<DataTable> GetJsonReportForUser()
+        public async Task<DataTable> GetJsonReportForUser(string reportId)
         {
             try
             {
                 _MyCommand.Clear_CommandParameter();
-                return await _MyCommand.Select_Table("select * from reportcontentmaster where action = 1", CommandType.Text);
+                return await _MyCommand.Select_Table($"select * from reportcontent where reportid = '{reportId}'", CommandType.Text);
             }
             catch (Exception ex)
             {
                 throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "GetJsonReportForUser"));
+            }
+
+            finally
+            {
+                Close_MyDbContext();
+            }
+        }
+
+        public async Task<DataTable> archiveSelectedReports(int reportId)
+        {
+            try
+            {
+                _MyCommand.Clear_CommandParameter();
+                string updateReportActionQuery = "update reportcontent SET status = 'Deactive' where reportId = " + reportId;
+                return await _MyCommand.Select_Table(updateReportActionQuery, CommandType.Text);
+            }
+            catch (Exception ex)
+            {
+                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "deleteSelectedReports"));
             }
 
             finally
@@ -83,7 +127,7 @@ namespace BAL.Operations.DynamicTeportingTool
             try
             {
                 _MyCommand.Clear_CommandParameter();
-                return await _MyCommand.Select_Table("select * from reportcontentmaster", CommandType.Text); ;
+                return await _MyCommand.Select_Table("SELECT * FROM reportcontent", CommandType.Text); ;
             }
             catch (Exception ex)
             {
@@ -96,28 +140,17 @@ namespace BAL.Operations.DynamicTeportingTool
             }
         }
 
-        public async Task<string> UpdateReportToShow( int reportId)
+        public async Task<DataTable> restoreSelectedReports(int reportId)
         {
             try
             {
                 _MyCommand.Clear_CommandParameter();
-                string updateReportActionQuery = "update reportcontentmaster SET `action` = 0 where `action` = 1";
-                string upadteActionQuery = "update reportcontentmaster SET `action` = 1 where `reportId` = " + reportId;
-               //var result=  ;
-               
-                if(await _MyCommand.Execute_Query(updateReportActionQuery, CommandType.Text))
-                {
-                    _MyCommand.Execute_Query(upadteActionQuery, CommandType.Text);
-                    return "true";
-                }
-                else
-                {
-                    return "false";
-                }
+                string updateReportActionQuery = "update reportcontent SET status = 'Active' where reportId = " + reportId;
+                return await _MyCommand.Select_Table(updateReportActionQuery, CommandType.Text);
             }
             catch (Exception ex)
             {
-                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "GetAllList"));
+                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "restoreSelectedReports"));
             }
 
             finally
@@ -125,5 +158,65 @@ namespace BAL.Operations.DynamicTeportingTool
                 Close_MyDbContext();
             }
         }
+
+        public string SaveReportUrl(Report_DTO data)
+        {
+            try
+            {
+                _MyCommand.Clear_CommandParameter();
+                string updateReportAliasnameQuery = "UPDATE querytable SET jsonaliasname= @prm_jsonAliasName where queryid=@prm_queryid";
+                _MyCommand.Add_Parameter_WithValue("@prm_queryid", data.queryid);
+                _MyCommand.Add_Parameter_WithValue("@prm_jsonAliasName", data.jsonaliasname);
+
+                _MyCommand.Execute_Query(updateReportAliasnameQuery, CommandType.Text);
+                return "true";
+            }
+            catch (Exception ex)
+            {
+                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "SaveReportUrl"));
+            }
+
+            finally
+            {
+                Close_MyDbContext();
+            }
+        }
+
+        public async Task<DataTable> GetReporturl()
+        {
+            try
+            {
+                _MyCommand.Clear_CommandParameter();
+                return await _MyCommand.Select_Table("select * from querytable", CommandType.Text);
+            }
+            catch (Exception ex)
+            {
+                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "GetReporturl"));
+            }
+
+            finally
+            {
+                Close_MyDbContext();
+            }
+        }
+
+        public async Task<DataTable> GetUrlLinkAndJsonAliasName(int queryid)
+        {
+            try
+            {
+                _MyCommand.Clear_CommandParameter();
+                return await _MyCommand.Select_Table($"select * from querytable where queryid = '{queryid}'", CommandType.Text);
+            }
+            catch (Exception ex)
+            {
+                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "bDynamicReportingTool", "GetUrlLinkAndJsonAliasName"));
+            }
+
+            finally
+            {
+                Close_MyDbContext();
+            }
+        }
+
     }
 }
