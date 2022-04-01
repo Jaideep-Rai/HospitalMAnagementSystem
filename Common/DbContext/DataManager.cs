@@ -12,21 +12,22 @@ namespace Common.DbContext
         // modified by Gautam
         public string DbConnection { get { return _connectionString; } }
         private IntPtr handle;  // Pointer to an external unmanaged resource.
-        public MySql.Data.MySqlClient.MySqlConnection _Connection; // Other managed resource this class uses.
+        public MySql.Data.MySqlClient.MySqlConnection _MyConnection; // Other managed resource this class uses.
         private bool disposed = false;  // Track whether Dispose has been called.
         public MySqlConnection()
         {
             try
             {
-                _Connection = new MySql.Data.MySqlClient.MySqlConnection
+                _MyConnection = new MySql.Data.MySqlClient.MySqlConnection
                 {
                     ConnectionString = DbConnection
                 };
-                _Connection.OpenAsync();
+                _MyConnection.OpenAsync();
             }
-            catch (Exception ex)
+            catch (MySql.Data.MySqlClient.MySqlException SqEx)
             {
-                throw ex;
+                throw new Exception(Utilities.ErrorCodes.ProcessException(SqEx, "", "", "",
+                    Utilities.ErrorCodes.MySqlExceptionMsg(SqEx)));
             }
         }
 
@@ -42,11 +43,11 @@ namespace Common.DbContext
             {
                 if (disposing)
                 {
-                    if (_Connection != null)
+                    if (_MyConnection != null)
                     {
-                        if (_Connection.State == System.Data.ConnectionState.Open)
-                            Task.Run(() => _Connection.CloseAsync());
-                        _Connection.Dispose();
+                        if (_MyConnection.State == System.Data.ConnectionState.Open)
+                            Task.Run(() => _MyConnection.CloseAsync());
+                        _MyConnection.Dispose();
                     }
                 }
                 CloseHandle(handle);
@@ -56,20 +57,20 @@ namespace Common.DbContext
         }
 
         [System.Runtime.InteropServices.DllImport("Kernel32")]
-        private extern static Boolean CloseHandle(IntPtr handle);
+        private extern static bool CloseHandle(IntPtr handle);
 
         ~MySqlConnection()
         {
-            Task.Run(() => Dispose(false));
+            Task.Run(() => Dispose(true));
         }
     }
 
     public class MySqlCommand : IDisposable
     {
         private IntPtr handle; // Pointer to an external unmanaged resource.
-        private readonly MySql.Data.MySqlClient.MySqlConnection _Connection;      // Other managed resource this class uses.
+        private readonly MySql.Data.MySqlClient.MySqlConnection _MyConnection;      // Other managed resource this class uses.
         private MySql.Data.MySqlClient.MySqlDataAdapter _MyDataAdaptor;
-        private readonly MySql.Data.MySqlClient.MySqlCommand _sqlCommand;
+        private readonly MySql.Data.MySqlClient.MySqlCommand _MyCommand;
         private bool disposed = false;  // Track whether Dispose has been called.
 
         // Implement IDisposable.
@@ -77,10 +78,10 @@ namespace Common.DbContext
         // A derived class should not be able to override this method.
         public MySqlCommand(MySql.Data.MySqlClient.MySqlConnection MyConnection)
         {
-            _Connection = MyConnection;
-            _sqlCommand = new MySql.Data.MySqlClient.MySqlCommand
+            _MyConnection = MyConnection;
+            _MyCommand = new MySql.Data.MySqlClient.MySqlCommand
             {
-                Connection = _Connection
+                Connection = _MyConnection
             };
         }
         public void Dispose()
@@ -107,11 +108,12 @@ namespace Common.DbContext
                 // and unmanaged resources.
                 if (disposing)
                 {
-                    if (_sqlCommand != null)
+                    if (_MyCommand != null)
                     {
-                        if (_sqlCommand.Parameters.Count > 0)
-                            _sqlCommand.Parameters.Clear();
-                        _sqlCommand.Dispose();
+                        if (_MyCommand.Parameters.Count > 0)
+                            _MyCommand.Parameters.Clear();
+                        _MyCommand.Connection.Close();
+                        _MyCommand.Dispose();
                     }
                     if (_MyDataAdaptor != null)
                     {
@@ -146,7 +148,7 @@ namespace Common.DbContext
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
             // readability and maintainability.
-            Dispose(false);
+            Dispose(true);
         }
         // Do not make this method virtual.
         // A derived class should not be allowed
@@ -169,13 +171,13 @@ namespace Common.DbContext
             {
                 if (ParameterName.IndexOf("@") < 0)
                     ParameterName = "@" + ParameterName;
-                _sqlCommand.Parameters.AddWithValue(ParameterName, Value);
+                _MyCommand.Parameters.AddWithValue(ParameterName, Value);
             }
             catch (MySql.Data.MySqlClient.MySqlException SqEx)
             {
                 throw new Exception(SqEx.Message);
             }
-            catch (System.Exception Ex)
+            catch (Exception Ex)
             {
                 throw new Exception(Ex.Message);
             }
@@ -193,7 +195,7 @@ namespace Common.DbContext
             {
                 if (ParameterName.IndexOf("@") < 0)
                     ParameterName = "@" + ParameterName;
-                _sqlCommand.Parameters.Add(ParameterName, DataType).Value = Value;
+                _MyCommand.Parameters.Add(ParameterName, DataType).Value = Value;
             }
             catch (MySql.Data.MySqlClient.MySqlException SqEx)
             {
@@ -214,7 +216,7 @@ namespace Common.DbContext
             try
             {
                 if (CommandText != null)
-                    _sqlCommand.CommandText = CommandText;
+                    _MyCommand.CommandText = CommandText;
             }
             catch (MySql.Data.MySqlClient.MySqlException SqEx)
             {
@@ -235,8 +237,8 @@ namespace Common.DbContext
         {
             try
             {
-                if (_sqlCommand.Parameters.Count > 0)
-                    _sqlCommand.Parameters.Clear();
+                if (_MyCommand.Parameters.Count > 0)
+                    _MyCommand.Parameters.Clear();
                 return true;
             }
             catch (MySql.Data.MySqlClient.MySqlException SqEx)
@@ -258,7 +260,7 @@ namespace Common.DbContext
         {
             try
             {
-                _sqlCommand.Transaction = MyTransaction;
+                _MyCommand.Transaction = MyTransaction;
             }
             catch (MySql.Data.MySqlClient.MySqlException Sqex)
             {
@@ -282,21 +284,30 @@ namespace Common.DbContext
         {
             try
             {
-                if (_Connection.State == System.Data.ConnectionState.Closed)
+                if (_MyConnection.State == System.Data.ConnectionState.Closed)
                 {
-                    await _Connection.OpenAsync();
+                    await _MyConnection.OpenAsync();
                 }
-                _sqlCommand.CommandText = Query;
-                _sqlCommand.CommandType = CmdType;
+                _MyCommand.CommandText = Query;
+                _MyCommand.CommandType = CmdType;
                 if (UseTransaction == true)
-                    _sqlCommand.Transaction = MyTransaction;
-                _sqlCommand.CommandTimeout = 0;
-                await _sqlCommand.ExecuteNonQueryAsync();
+                    _MyCommand.Transaction = MyTransaction;
+                _MyCommand.CommandTimeout = 0;
+                await _MyCommand.ExecuteNonQueryAsync();
                 return true;
+            }
+            catch (MySql.Data.MySqlClient.MySqlException Sqex)
+            {
+                throw new Exception(Utilities.ErrorCodes.ProcessException(Sqex, "", "", "", Utilities.ErrorCodes.MySqlExceptionMsg(Sqex)));
             }
             catch (Exception Ex)
             {
                 throw new Exception(Ex.Message);
+            }
+
+            finally
+            {
+                Close();
             }
         }
 
@@ -310,19 +321,27 @@ namespace Common.DbContext
         {
             try
             {
-                if (_Connection.State == System.Data.ConnectionState.Closed)
+                if (_MyConnection.State == System.Data.ConnectionState.Closed)
                 {
-                    await _Connection.OpenAsync();
+                    await _MyConnection.OpenAsync();
                 }
-                _sqlCommand.CommandText = Query;
-                _sqlCommand.CommandType = CommandType;
-                _sqlCommand.CommandTimeout = 0;
-                var _result = await _sqlCommand.ExecuteNonQueryAsync();
-                return _result > 0;
+                _MyCommand.CommandText = Query;
+                _MyCommand.CommandType = CommandType;
+                _MyCommand.CommandTimeout = 0;
+                var _result = await _MyCommand.ExecuteNonQueryAsync();
+                return Convert.ToBoolean(_result);
+            }
+            catch (MySql.Data.MySqlClient.MySqlException Sqex)
+            {
+                throw new Exception(Utilities.ErrorCodes.ProcessException(Sqex, "", "", "", Utilities.ErrorCodes.MySqlExceptionMsg(Sqex)));
             }
             catch (System.Exception Ex)
             {
                 throw new Exception(Ex.Message);
+            }
+            finally
+            {
+                Close();
             }
         }
 
@@ -337,18 +356,27 @@ namespace Common.DbContext
         {
             try
             {
-                if (_Connection.State == System.Data.ConnectionState.Closed)
+                if (_MyConnection.State == System.Data.ConnectionState.Closed)
                 {
-                    await _Connection.OpenAsync();
+                    await _MyConnection.OpenAsync();
                 }
-                _sqlCommand.CommandText = Query;
-                _sqlCommand.CommandType = CommandType;
-                _sqlCommand.CommandTimeout = 0;
-                return Convert.ToString(_sqlCommand.ExecuteScalar());
+                _MyCommand.CommandText = Query;
+                _MyCommand.CommandType = CommandType;
+                _MyCommand.CommandTimeout = 0;
+                return Convert.ToString(_MyCommand.ExecuteScalar());
+            }
+
+            catch (MySql.Data.MySqlClient.MySqlException Sqex)
+            {
+                throw new Exception(Utilities.ErrorCodes.ProcessException(Sqex, "", "", "", Utilities.ErrorCodes.MySqlExceptionMsg(Sqex)));
             }
             catch (System.Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+            finally
+            {
+                Close();
             }
         }
 
@@ -363,22 +391,29 @@ namespace Common.DbContext
             System.Data.DataTable DT = new System.Data.DataTable();
             try
             {
-                if (_Connection.State == System.Data.ConnectionState.Closed)
+                if (_MyConnection.State == System.Data.ConnectionState.Closed)
                 {
-                    await _Connection.OpenAsync();
+                    await _MyConnection.OpenAsync();
                 }
-                _sqlCommand.CommandText = Query;
-                _sqlCommand.CommandType = CommandType;
-                _sqlCommand.CommandTimeout = 0;
+                _MyCommand.CommandText = Query;
+                _MyCommand.CommandType = CommandType;
+                _MyCommand.CommandTimeout = 0;
 
-                _MyDataAdaptor = new MySql.Data.MySqlClient.MySqlDataAdapter(_sqlCommand);
+                _MyDataAdaptor = new MySql.Data.MySqlClient.MySqlDataAdapter(_MyCommand);
                 await _MyDataAdaptor.FillAsync(DT);
-                await _Connection.CloseAsync();
                 return DT;
+            }
+            catch (MySql.Data.MySqlClient.MySqlException Sqex)
+            {
+                throw new Exception(Utilities.ErrorCodes.ProcessException(Sqex, "", "", "", Utilities.ErrorCodes.MySqlExceptionMsg(Sqex)));
             }
             catch (System.Exception Ex)
             {
                 throw new Exception(Ex.Message);
+            }
+            finally
+            {
+                Close();
             }
         }
         /// <summary>
@@ -393,21 +428,30 @@ namespace Common.DbContext
             System.Data.DataSet DS = new System.Data.DataSet();
             try
             {
-                if (_Connection.State == System.Data.ConnectionState.Closed)
+                if (_MyConnection.State == System.Data.ConnectionState.Closed)
                 {
-                    await _Connection.OpenAsync();
+                    await _MyConnection.OpenAsync();
                 }
-                _sqlCommand.CommandText = Query;
-                _sqlCommand.CommandType = CommandType;
-                _sqlCommand.CommandTimeout = 0;
+                _MyCommand.CommandText = Query;
+                _MyCommand.CommandType = CommandType;
+                _MyCommand.CommandTimeout = 0;
 
-                _MyDataAdaptor = new MySql.Data.MySqlClient.MySqlDataAdapter(_sqlCommand);
+                _MyDataAdaptor = new MySql.Data.MySqlClient.MySqlDataAdapter(_MyCommand);
                 await _MyDataAdaptor.FillAsync(DS);
                 return DS;
+            }
+
+            catch (MySql.Data.MySqlClient.MySqlException Sqex)
+            {
+                throw new Exception(Utilities.ErrorCodes.ProcessException(Sqex, "", "", "", Utilities.ErrorCodes.MySqlExceptionMsg(Sqex)));
             }
             catch (System.Exception Ex)
             {
                 throw new Exception(Ex.Message);
+            }
+            finally
+            {
+                Close();
             }
         }
 
@@ -426,7 +470,7 @@ namespace Common.DbContext
 
                 foreach (var prop in propertyInfos)
                 {
-                    _sqlCommand.Parameters.AddWithValue((prop.Name.IndexOf("@") < 0) ? $"@{prop.Name}" :
+                    _MyCommand.Parameters.AddWithValue((prop.Name.IndexOf("@") < 0) ? $"@{prop.Name}" :
                         prop.Name, prop.GetValue(ModelData));
                 }
             }
@@ -437,6 +481,10 @@ namespace Common.DbContext
             catch (System.Exception Ex)
             {
                 throw new Exception(Ex.Message);
+            }
+            finally
+            {
+                Close();
             }
         }
 
@@ -457,14 +505,14 @@ namespace Common.DbContext
             PropertyInfo[] propertyInfos = temp.GetProperties();
             try
             {
-                if (_Connection.State == System.Data.ConnectionState.Closed)
+                if (_MyConnection.State == System.Data.ConnectionState.Closed)
                 {
-                    await _Connection.OpenAsync();
-                    _sqlCommand.Connection = _Connection;
+                    await _MyConnection.OpenAsync();
+                    _MyCommand.Connection = _MyConnection;
                 }
-                _sqlCommand.CommandText = SPName;
-                _sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
-                _sqlCommand.CommandTimeout = 0;
+                _MyCommand.CommandText = SPName;
+                _MyCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                _MyCommand.CommandTimeout = 0;
 
                 if (ListData != null)
                 {
@@ -479,32 +527,39 @@ namespace Common.DbContext
                     Clear_CommandParameter();
                     await InsertRecords(SPInitials, propertyInfos, SingleRowData);
                 }
-                return new DataResponse("Saved", true);
+                return new DataResponse("Data Process Success", true);
             }
             catch (Exception ex)
             {
                 return new DataResponse(ex.Message, false);
-
+            }
+            finally
+            {
+                Close();
             }
         }
 
-        private Task InsertRecords<T>(string SPInitials, PropertyInfo[] propertyInfos, T item) where T : class
+        private async Task InsertRecords<T>(string SPInitials, PropertyInfo[] propertyInfos, T item) where T : class
         {
             foreach (var pro in propertyInfos)
             {
                 var _itemValue = pro.GetValue(item);
                 // Convert DateTime to MySql DateTime Format
-                //if (pro.PropertyType.Name == "DateTime")
-                //{
-                //    _itemValue = Convert.ToDateTime(_itemValue).ToString("yyyy-MM-dd");
-                //}
-                if (pro.PropertyType.Name == "Guid")
+                if (pro.PropertyType.Name == "DateTime")
+                {
+                    _itemValue = Convert.ToDateTime(_itemValue).ToString("yyyy-MM-dd");
+                }
+                else if (pro.PropertyType.Name == "Guid")
                 {
                     _itemValue = _itemValue.ToString();
                 }
-                _sqlCommand.Parameters.AddWithValue($"@{SPInitials}{pro.Name}", _itemValue);
+
+                _MyCommand.Parameters.AddWithValue($"@{SPInitials}{pro.Name}", _itemValue);
+
             }
-            return _sqlCommand.ExecuteNonQueryAsync();
+
+            await _MyCommand.ExecuteNonQueryAsync();
+
         }
     }
 }
