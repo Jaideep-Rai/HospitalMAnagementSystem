@@ -97,7 +97,7 @@ namespace Common.Utilities
         }
 
 
-        public static List<T> ConvertDataTableToList<T>(DataTable dt) where T:class, new()
+        public static List<T> ConvertDataTableToList<T>(DataTable dt)
         {
             List<T> data = new List<T>();
             foreach (DataRow row in dt.Rows)
@@ -117,25 +117,19 @@ namespace Common.Utilities
             {
                 foreach (PropertyInfo pro in temp.GetProperties())
                 {
-                    try
+                    if (pro.Name.ToLower() == column.ColumnName.ToLower())
                     {
-                        if (pro.Name.ToLower().Equals(column.ColumnName.ToLower()))
+                        var _val = dr[column.ColumnName];
+                        if (dr[column.ColumnName] == DBNull.Value)
                         {
-                            var _val = dr[column.ColumnName];
-                            if (dr[column.ColumnName] == DBNull.Value)
-                            {
-                                _val = null;
-                            }
-                            pro.SetValue(obj, _val, null);
+                            _val = null;
                         }
-                        else
-                            continue;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
+                        pro.SetValue(obj, _val, null);
+
                     }
 
+                    else
+                        continue;
                 }
             }
             return obj;
