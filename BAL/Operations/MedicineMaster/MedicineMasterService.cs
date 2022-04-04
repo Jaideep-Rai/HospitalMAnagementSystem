@@ -1,5 +1,6 @@
 ﻿using Common.DbContext;
 using DTO.MedicineMaster;
+using DTO.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,26 +13,56 @@ namespace BAL.Interfaces.MedicineMaster
     {
         public async Task<bool> Delete(int id)
         {
-            Await_MyCommand.Clear_CommandParameter();
-            Await_MyCommand.Add_Parameter_WithValue("prm_id", id);
-            return await Await_MyCommand.Execute_Query("med_delete", CommandType.StoredProcedure);
+            _MyCommand.Clear_CommandParameter();
+            _MyCommand.Add_Parameter_WithValue("prm_id", id);
+            return await _MyCommand.Execute_Query("medicine_delete", CommandType.StoredProcedure);
         }
-        public async Task<bool> Insert(MedicineMasterDTO medicineMaster)
+
+        public async Task<DataTable> Get(int? id)
+        {
+            _MyCommand.Clear_CommandParameter();
+            _MyCommand.Add_Parameter_WithValue("prm_id",id == 0 ? null : id);
+            DataTable result= await _MyCommand.Select_Table("medicine_get", CommandType.StoredProcedure);
+            return result;
+        }
+
+        /// <summary>
+        /// Author: Nido Then
+        /// Date: 01-Apr-2022
+        /// Desc: insert medicine in master table.
+        /// Modified By: 
+        /// Modified On:
+        /// Desc:
+        /// </summary>
+        /// <param name="medicineMaster"></param>
+        /// <returns></returns>
+
+        public async Task<DataResponse> Insert(MedicineMasterDTO medicineMaster)
         {
             try
             {
-                Await_MyCommand.Clear_CommandParameter();
-                Await_MyCommand.Add_Parameter_WithValue("prm_medicinename", medicineMaster.medicinename);
-                Await_MyCommand.Add_Parameter_WithValue("prm_mg", medicineMaster.mg);
-                Await_MyCommand.Add_Parameter_WithValue("prm_price", medicineMaster.price);
-                Await_MyCommand.Add_Parameter_WithValue("prm_quantity", medicineMaster.quantity);
-                return await Await_MyCommand.Execute_Query("med_insert", CommandType.StoredProcedure);
+                return await _MyCommand.AddOrEditWithStoredProcedure("medicine_insert", null, medicineMaster, "prm_");
             }
             catch (Exception ex)
             {
-                throw new System.Exception(Common.Utilities.ErrorCodes.ProcessException(ex, "BAL", "MedicineMaster", "Insert"));
+                throw new Exception(ex.Message);
             }
             
         }
+
+        public async Task<DataResponse> Update(MedicineMasterDTO medicineMaster)
+        {
+            try
+            {
+                return await _MyCommand.AddOrEditWithStoredProcedure("medicine_update", null, medicineMaster, "prm_");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
     }
 }
