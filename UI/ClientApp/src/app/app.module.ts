@@ -5,20 +5,23 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './home/home.component';
-import { CounterComponent } from './counter/counter.component';
-import { FetchDataComponent } from './fetch-data/fetch-data.component';
-import { HeaderComponent } from './header/header.component';
+import { HomeComponent } from './views/home/home.component';
+import { HeaderComponent } from './Component/header/header.component';
+import { MedicineComponent } from './views/medicine/medicine.component';
+import { SidebarComponent } from './Component/sidebar/sidebar.component';
+import { CreateMedecineComponent } from './views/medicine/create-medecine/create-medecine.component';
+import { BillComponent } from './views/bill/bill.component';
+import { ApiService } from './services/api.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NavMenuComponent,
     HomeComponent,
-    CounterComponent,
-    FetchDataComponent,
-    HeaderComponent
+    HeaderComponent,
+    MedicineComponent,
+    SidebarComponent,
+    CreateMedecineComponent,
+    BillComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -26,11 +29,11 @@ import { HeaderComponent } from './header/header.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'counter', component: CounterComponent },
-      { path: 'fetch-data', component: FetchDataComponent },
+      { path: 'medicines', component: MedicineComponent },
+      { path: 'medicines/add', component: CreateMedecineComponent },
     ])
   ],
-  providers: [],
+  providers: [ApiService, AppComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

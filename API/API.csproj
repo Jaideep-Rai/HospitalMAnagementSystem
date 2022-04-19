@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="assets\**" />
+    <Content Remove="assets\**" />
+    <EmbeddedResource Remove="assets\**" />
+    <None Remove="assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="NLog" Version="4.7.4" />
   </ItemGroup>
@@ -35,13 +42,6 @@
     <ProjectReference Include="..\BAL\BAL.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\ExceptionHandling\ExceptionHandling.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="assets\images\gallery\" />
-    <Folder Include="assets\images\medium\" />
-    <Folder Include="assets\images\orginal\" />
-    <Folder Include="assets\images\small\" />
   </ItemGroup>
 
 

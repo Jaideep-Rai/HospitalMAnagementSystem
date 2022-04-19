@@ -20,7 +20,7 @@ namespace API.Controllers.MedicineMaster
             _iMedicineMasterService = iMedicineMasterService;
         }
 
-        [HttpDelete("/Delete{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id == 0)
@@ -28,19 +28,19 @@ namespace API.Controllers.MedicineMaster
 
             return Ok(await _iMedicineMasterService.Delete(id));
         }
-        [HttpPost("/Insert")]
+        [HttpPost]
         public async Task<IActionResult> Insert(MedicineMasterDTO medicineMaster)
         {
             return Ok(await _iMedicineMasterService.Insert(medicineMaster));
         }
 
-        [HttpPut("/Update")]
+        [HttpPut]
         public async Task<IActionResult> Update(MedicineMasterDTO medicineMaster)
         {
             return Ok(await _iMedicineMasterService.Update(medicineMaster));
         }
 
-        [HttpGet("/Show{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _iMedicineMasterService.Get(id));
