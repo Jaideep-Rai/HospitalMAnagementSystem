@@ -17,7 +17,7 @@ export class ApiService {
     return this.http.get<any>(`${this.appComponent.APIURL}${url}`, { withCredentials: false })
       .pipe(map(content => {
         if (content == null || content.length <= 0) {
-          alert("No Data Found!!");
+          
           return content;
         } else {
           this.content.data = content;
@@ -55,7 +55,7 @@ export class ApiService {
     debugger;
     return this.http.delete<any>(`${this.appComponent.APIURL}${url}`, { withCredentials: false })
       .pipe(map(content => {
-        if (!content.isSuccess) {
+        if (!content) {
           if (content.errors.includes('547')) {
             alert("Dependent data");
             return false;

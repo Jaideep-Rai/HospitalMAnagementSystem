@@ -8,14 +8,14 @@ declare var $: any;
   styleUrls: ['./medicine.component.css']
 })
 export class MedicineComponent implements OnInit {
-  medicines: any;
+  medicines: any=[];
   errorMessage: string;
   constructor(private apiService: ApiService) { }
 
   ngOnInit() {
-    $(document).ready(function () {
-      $('#dataTable').DataTable();
-    });
+    //$(document).ready(function () {
+    //  $('#dataTable').DataTable();
+    //});
     this.get();
   }
 
@@ -24,7 +24,7 @@ export class MedicineComponent implements OnInit {
       .subscribe((res: any) => {
         debugger;
         if (!res) {
-          alert("Could not load data at this time. Try again later.")
+          /*alert("Could not load data at this time. Try again later.")*/
         }
         else {
           this.medicines = res;
@@ -34,14 +34,18 @@ export class MedicineComponent implements OnInit {
       });
   }
 
-  delete(mdicine) {
-    this.apiService.deleteData(`medicinemaster/${mdicine.id}`, mdicine.id).subscribe((res: any) => {
+  delete(medicine) {
+    this.apiService.deleteData(`medicinemaster/${medicine.id}`, medicine.id).subscribe((res: any) => {
+      this.get();
       if (res) {
         alert("Data deleted");
       }
+      else {
+        this.errorMessage = res; }
     }, error => {
       alert("Error deleting, try again after sometime.");
     })
-    }
+  }
+  
  
 }

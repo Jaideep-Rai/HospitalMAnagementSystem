@@ -1,0 +1,33 @@
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <h1 class="h3 mb-4 text-gray-800">All Bills</h1>
+
+  <div class="card" style="width: 50rem;">
+    <form class="container" #form ngNativeValidation>
+      <div class="col-md-12">
+        <div class="row">
+
+          <div class="col-md-6 mb-3">
+            <label class="w-100">Patient Name</label>
+            <input type="text" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bills.name">
+          </div>
+         
+        </div>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bills.discount">
+        <label class="form-check-label" for="defaultCheck1">
+          Discount offer
+        </label>
+      </div>
+      <div class="btn-sm pr-4 mt-3">
+        <button class="btn btn-primary btn-sm p-2 text-center btn-rounded" (click)="form.checkValidity()?save():null">Submit</button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
