@@ -30,9 +30,6 @@ namespace BAL.Interfaces.MedicineMaster
         /// Author: Nido Then
         /// Date: 01-Apr-2022
         /// Desc: insert medicine in master table.
-        /// Modified By:  
-        /// Modified On:
-        /// Desc:
         /// </summary>
         /// <param name="medicineMaster"></param>
         /// <returns></returns>
