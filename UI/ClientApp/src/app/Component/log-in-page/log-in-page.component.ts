@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-log-in-page',
@@ -7,9 +8,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LogInPageComponent implements OnInit {
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
   }
-
+  login(userName,password) {
+    debugger
+    if (userName == 'admin' && password == 'Admin123') {
+      this.router.navigate(['/hrms'])
+    }
+    else {
+      alert('Username and Password incorrect.')
+    }
+  }
 }

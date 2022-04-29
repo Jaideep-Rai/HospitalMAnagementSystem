@@ -36,15 +36,21 @@ import { LogInPageComponent } from './Component/log-in-page/log-in-page.componen
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'medicines', component: MedicineComponent },
-      { path: 'medicines/add', component: CreateMedecineComponent },
-      { path: 'bills', component: BillComponent },
-      { path: 'bills/add', component: CreateBillComponent },
-      { path: 'inventory', component: InventoryComponent },
-      { path: 'inventory/add', component: CreateStockComponent },
-      { path: 'loginpage', component: LogInPageComponent },
-    ])
+      {
+        path: '', redirectTo: '/login',  pathMatch: 'full' },
+      {
+        path: 'hrms', component: HomeComponent, children: [
+          { path: 'medicines', component: MedicineComponent },
+          { path: 'medicines/add', component: CreateMedecineComponent },
+          { path: 'bills', component: BillComponent },
+          { path: 'bills/add', component: CreateBillComponent },
+          { path: 'inventory', component: InventoryComponent },
+          { path: 'inventory/add', component: CreateStockComponent },
+        ]
+      },
+     
+      { path: 'login', component: LogInPageComponent },
+    ], { useHash: true })
   ],
   providers: [ApiService, AppComponent],
   bootstrap: [AppComponent]

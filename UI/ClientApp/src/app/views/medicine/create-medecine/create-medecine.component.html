@@ -1,21 +1,21 @@
-<div class="container-fluid">
 
+<div class="container-fluid">
   <!-- Page Heading -->
   <h1 class="h3 mb-4 text-gray-800 text-center">Add Medicine</h1>
 
-  <div class="card" style="width: 50rem;">
+  <div class="card shadow" style="width: 50rem;">
     <form class="container" #form ngNativeValidate>
       <div class="col-md-12">
         <div class="row">
 
-          <div class="col-md-3 mb-3">
+          <div class="col-md-4 mb-3">
             <label class="w-100">Medicine name</label>
             <input type="text" class="form-control form-control-sm" required
                    [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.name">
           </div>
 
 
-          <div class="col-md-3">
+          <div class="col-md-4">
             <label class="w-100">composition</label>
             <select class="form-control form-control-sm" required
                     [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.composition">
@@ -27,24 +27,76 @@
               <option value="500">500 mg</option>
             </select>
           </div>
-
-
-
-          <div class="col-md-3 mb-3">
+          <div class="col-md-4 mb-3">
             <label class="w-100">Quantity</label>
             <input type="number" class="form-control form-control-sm" required
                    [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.quantity">
           </div>
 
-          <div class="col-md-3">
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-4">
 
-            <label class="w-100">Price</label>
-            <input type="number" class="form-control form-control-sm" required
-                   [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.price">
+            <label class="w-100">Company Name</label>
+            <input type="text" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.company">
           </div>
+          <div class="col-md-4">
+
+            <label class="w-100">Batch ID</label>
+            <input type="number" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.batch">
+          </div>
+          <div class="col-md-4">
+
+            <label class="w-100">Manufactured Date</label>
+            <input type="date" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.mfd">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-4">
+          <label class="w-100">Expiry Date</label>
+          <input type="date" class="form-control form-control-sm" required
+                 [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.exp">
+            </div>
+          <div class="col-md-4">
+          <label class="w-100">Medicine Category</label>
+          <select class="form-control form-control-sm" required
+                  [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.category">
+            <option value="">Select</option>
+            <option value="syrup">Syrup</option>
+            <option value="capsule">Capsule</option>
+            <option value="ointment">Ointment</option>
+            <option value="cream">Cream</option>
+            <option value="drop">Drop</option>
+            <option value="tablet">Tablet</option>
+          </select>
+        </div>
+          <div class="col-md-4">
+          <label class="w-100">Availability</label>
+          <select class="form-control form-control-sm" required
+                  [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.availability">
+            <option value="">Select</option>
+            <option value="Unavailable">Unavailable</option>
+            <option value="Available">Available</option>
+            
+          </select>
+            </div>
 
         </div>
       </div>
+      <div class="col-md-3">
+
+        <label class="w-100">Price</label>
+        <input type="number" class="form-control form-control-sm" required
+               [ngModelOptions]="{standalone:true}" [(ngModel)]="medicine.price">
+      </div>
+
       <div class="btn-sm pr-4 mt-3">
         <button class="btn btn-primary btn-sm p-2 text-center btn-rounded" (click)="form.checkValidity()?save():null">Add</button>
       </div>

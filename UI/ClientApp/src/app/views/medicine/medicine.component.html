@@ -22,8 +22,13 @@
               <th>Composition</th>
               <th>Quantity</th>
               <th>Price</th>
-              <th>Action</th>
-              
+              <th>Company</th>
+              <th>Batch ID</th>
+              <th>Manufactured Date</th>
+              <th>Expiry Date</th>
+              <th>Category</th>
+              <th>Availability</th>
+              <th>Price</th>
             </tr>
           </thead>
         <tbody>
@@ -35,10 +40,16 @@
             <td>{{medicine.name}}</td>
             <td>{{medicine.composition}}</td>
             <td>{{medicine.quantity}}</td>
+            <td>{{medicine.company}}</td>
+            <td>{{medicine.batch}}</td>
+            <td>{{medicine.mfd}}</td>
+            <<td>{{medicine.exp}}</td>
+            <td>{{medicine.category}}</td>
+            <td>{{medicine.availability}}</td>
             <td>{{medicine.price}}</td>
             <td>
-              <span  (click)="edit(medicine)"><i class="fa fa-edit "></i></span>
-              <span  (click)="delete(medicine)"><i class="fa fa-trash ml-3"></i></span>
+              <span (click)="edit(medicine)"><i class="fa fa-edit "></i></span>
+              <span (click)="delete(medicine)"><i class="fa fa-trash ml-3"></i></span>
             </td>
           </tr>
         </tbody>
