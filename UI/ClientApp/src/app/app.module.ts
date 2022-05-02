@@ -16,6 +16,8 @@ import { CreateBillComponent } from './views/bill/create-bill/create-bill.compon
 import { InventoryComponent } from './views/inventory/inventory.component';
 import { CreateStockComponent } from './views/inventory/create-stock/create-stock.component';
 import { LogInPageComponent } from './Component/log-in-page/log-in-page.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RegistrationFormComponent } from './Component/log-in-page/registration-form/registration-form.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,8 @@ import { LogInPageComponent } from './Component/log-in-page/log-in-page.componen
     CreateBillComponent,
     InventoryComponent,
     CreateStockComponent,
-    LogInPageComponent
+    LogInPageComponent,
+    RegistrationFormComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -37,7 +40,9 @@ import { LogInPageComponent } from './Component/log-in-page/log-in-page.componen
     FormsModule,
     RouterModule.forRoot([
       {
-        path: '', redirectTo: '/login',  pathMatch: 'full' },
+        path: '', redirectTo: '/login', pathMatch: 'full'
+      },
+      { path: 'register', component: RegistrationFormComponent },
       {
         path: 'hrms', component: HomeComponent, children: [
           { path: 'medicines', component: MedicineComponent },
@@ -50,7 +55,8 @@ import { LogInPageComponent } from './Component/log-in-page/log-in-page.componen
       },
      
       { path: 'login', component: LogInPageComponent },
-    ], { useHash: true })
+    ], { useHash: true }),
+    BrowserAnimationsModule
   ],
   providers: [ApiService, AppComponent],
   bootstrap: [AppComponent]

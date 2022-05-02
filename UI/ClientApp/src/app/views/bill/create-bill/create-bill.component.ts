@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-create-bill',
@@ -6,10 +7,33 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./create-bill.component.css']
 })
 export class CreateBillComponent implements OnInit {
-
-  constructor() { }
+  Bill: any = {};
+  @Input() Content: any;
+  constructor(private apiService: ApiService) { }
 
   ngOnInit() {
+   
   }
+  checkCaller() {
+    if (this.Content.Caller=="POST") {
+      this.save();
+    }
+    else {
+      this.edit();
+    }
+  }
+
+  edit() {
+    this.apiService.putData('url', this.Content.Bill.id, this.Content.Bill).subscribe(res => {
+      //show success message and haldle error
+
+    })
+    }
+    save() {
+      this.apiService.postData('url', this.Content.Bill).subscribe(res => {
+        //show success message and haldle error
+
+      })
+    }
 
 }

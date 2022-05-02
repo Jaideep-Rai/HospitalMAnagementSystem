@@ -13,25 +13,25 @@
   <hr class="sidebar-divider my-0">
 
   <!-- Nav Item - Dashboard -->
-  <li class="nav-item active">
+  <li class="nav-item active" *ngIf="role=='SuperAdmin'">
     <a class="nav-link" href="index.html">
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span>
     </a>
   </li>
-  <li class="nav-item">
+  <li class="nav-item" *ngIf="role=='SuperAdmin' || role=='Admin'">
     <a class="nav-link" routerLink="medicines">
       <i class="fas fa-fw fa-table"></i>
       <span>Manage Medicines</span>
     </a>
   </li>
-  <li class="nav-item">
+  <li class="nav-item" *ngIf="role=='SuperAdmin' || role=='Admin'">
     <a class="nav-link" routerLink="bills">
       <i class="fas fa-fw fa-table"></i>
       <span>Manage Bills</span>
     </a>
   </li>
-  <li class="nav-item">
+  <li class="nav-item"  *ngIf="role=='SuperAdmin' || role=='Admin'">
     <a class="nav-link" routerLink="inventory">
       <i class="fas fa-fw fa-table"></i>
       <span>Inventory</span>
