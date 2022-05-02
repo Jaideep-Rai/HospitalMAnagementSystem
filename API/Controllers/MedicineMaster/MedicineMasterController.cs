@@ -24,7 +24,7 @@ namespace API.Controllers.MedicineMaster
         public async Task<IActionResult> Delete(int id)
         {
             if (id == 0)
-                return BadRequest("Please provide role id.");
+                return BadRequest("Please provide id.");
 
             return Ok(await _iMedicineMasterService.Delete(id));
         }
