@@ -1,4 +1,5 @@
 ﻿using BAL.Interfaces.UserMaster;
+using DTO.Models;
 using DTO.UserMaster;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,15 +18,23 @@ namespace API.Controllers.UserMaster
         {
             _iUserMasterService = iUserMasterService;
         }
+
         [HttpPost]
-        public async Task<IActionResult> Insert(UserMasterDTO UserMaster)
+        public async Task<IActionResult> Login(UserLoginInputs userLoginInputs)
         {
-            return Ok(await _iUserMasterService.Insert(UserMaster));
+           return Ok( await _iUserMasterService.Login(userLoginInputs));
         }
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
-        {
-            return Ok(await _iUserMasterService.Delete(id));
-        }
+         
+        //[HttpPost]
+        //public async Task<IActionResult> Insert(UserMasterDTO UserMaster)
+        //{
+        //    return Ok(await _iUserMasterService.Insert(UserMaster));
+        //}
+        
+        //[HttpDelete]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    return Ok(await _iUserMasterService.Delete(id));
+        //}
     }
 }

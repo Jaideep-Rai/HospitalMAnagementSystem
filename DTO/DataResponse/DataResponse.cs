@@ -9,6 +9,8 @@
             Message = message;
             IsSucceeded = isSucceeded;
         }
+
+        public object Data { get; set; }
     }
 
 }

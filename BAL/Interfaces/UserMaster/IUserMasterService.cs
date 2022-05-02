@@ -9,7 +9,6 @@ namespace BAL.Interfaces.UserMaster
 {
     public interface IUserMasterService
     {
-        Task<DataResponse> Insert(UserMasterDTO UserMaster);
-        Task<bool> Delete(int id);
+        Task<DataResponse> Login(UserLoginInputs userLoginInputs);
     }
 }

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Common.Utilities
+namespace DTO
 {
-  public static  class BPMValueFile
+    public class Students
     {
+        public int id { get; set; }
     }
 }

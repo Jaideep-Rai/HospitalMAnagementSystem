@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DTO.UserMaster
+namespace DTO.Models
 {
-    public class UserMasterDTO
+   public class UserLoginInputs
     {
-        public int Id { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
     }
