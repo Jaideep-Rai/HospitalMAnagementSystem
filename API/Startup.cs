@@ -1,15 +1,15 @@
-using API.Dbcontext;
-using API.UpdateUserDb;
+using API.Dbcontext; 
 using BAL.DependencyResolver;
+using DTO.UserMaster;
 using ExceptionHandling.DependencyResolver;
 using ExceptionHandling.ExceptionManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using NLog;
@@ -34,18 +34,29 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            services.AddControllers().AddNewtonsoftJson(options =>
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            );// for 3.1
+            services.AddDbContext<ApplicationDbContext>(options =>
+                 options.UseMySQL(
+                     Configuration.GetConnectionString("DefaultConnection"),
+                     b => b.MigrationsAssembly("DiseaseMIS.BAL")), ServiceLifetime.Scoped);
+
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireDigit = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+            }).AddEntityFrameworkStores<ApplicationDbContext>()
+           .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider);
+             
             services.AddCors(options =>
             {
                 options.AddPolicy(MyAllowSpecificOrigins,
                 builder =>
                 {
                     builder.AllowAnyOrigin()
-    .AllowAnyHeader()
-    .AllowAnyMethod();
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
                 });
             });
 
@@ -57,23 +68,7 @@ namespace API
             services.ExceptionDIResolver();
             services.AddSwaggerGen();
             services.AddDistributedMemoryCache();
-
-            // ===== Add DbContext ========
-            services.AddDbContext<ApplicationDbContext>();
-
-            // ===== Add Identity ========
-
-            services.AddIdentity<UserField, IdentityRole>(config =>
-            {
-                config.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-. _@+";
-                //config.SignIn.RequireConfirmedEmail = true;
-                //config.User.RequireUniqueEmail = true;
-            })
-
-
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+              
             //===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
             services
@@ -96,6 +91,11 @@ namespace API
                     ClockSkew = TimeSpan.Zero // remove delay of token when expire
                 };
             });
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+                   options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                   );// for 3.1
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,35 +104,30 @@ namespace API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(o =>
+
+                {
+                    o.SwaggerEndpoint("/swagger/v1/swagger.json", "<Project name>"); // add project name
+                });
             }
             else
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
            
-
-            app.UseSwagger();
-            app.UseSwaggerUI(o =>
-
-            {
-                o.SwaggerEndpoint("/swagger/v1/swagger.json", "Dynamic Reporting Tool");
-            });
             app.UseCors(MyAllowSpecificOrigins);
-            app.ConfigureExceptionMiddleware();
+           // app.ConfigureExceptionMiddleware();
             app.UseHttpsRedirection();
-            //app.UseMvc(); not needed in 3.1
-            app.UseAuthentication();
 
-            app.UseRouting(); // for 3.1
-            app.UseAuthorization(); //for 3.1
+            app.UseRouting();
+            app.UseAuthentication(); 
+            app.UseAuthorization(); 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-            }); // for 3.1
-                // ===== Create tables ======
-            dbContext.Database.EnsureCreated();
+            });  
         }
 
     }

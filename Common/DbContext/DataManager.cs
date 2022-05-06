@@ -1,4 +1,5 @@
 ﻿using DTO.Models;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,21 +7,40 @@ using System.Threading.Tasks;
 
 namespace Common.DbContext
 {
-    public class MySqlConnection : AppConfiguration, IDisposable
+    public class MySqlConnection :  IDisposable
     {
         // added by priyam
         // modified by Gautam
-        public string DbConnection { get { return _connectionString; } }
+        public string DbConnection;
         private IntPtr handle;  // Pointer to an external unmanaged resource.
         public MySql.Data.MySqlClient.MySqlConnection _MyConnection; // Other managed resource this class uses.
         private bool disposed = false;  // Track whether Dispose has been called.
+        
         public MySqlConnection()
         {
             try
-            {
-                _MyConnection = new MySql.Data.MySqlClient.MySqlConnection
+            {   _MyConnection = new MySql.Data.MySqlClient.MySqlConnection
                 {
                     ConnectionString = DbConnection
+                };
+                _MyConnection.OpenAsync();
+            }
+            catch (MySql.Data.MySqlClient.MySqlException SqEx)
+            {
+                throw new Exception(Utilities.ErrorCodes.ProcessException(SqEx, "", "", "",
+                    Utilities.ErrorCodes.MySqlExceptionMsg(SqEx)));
+            }
+        }
+        
+        public MySqlConnection(IConfiguration configuration)
+        {
+            try
+            {
+                this.DbConnection = configuration.GetConnectionString("DefaultConnection");
+
+                _MyConnection = new MySql.Data.MySqlClient.MySqlConnection
+                {
+                    ConnectionString = configuration.GetConnectionString("DefaultConnection")
                 };
                 _MyConnection.OpenAsync();
             }

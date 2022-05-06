@@ -4,27 +4,44 @@
   <!-- Sidebar - Brand -->
   <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
     <div class="sidebar-brand-icon rotate-n-15">
+<<<<<<< HEAD
       <i class="fa fa-hospital-o" aria-hidden="true"></i>
+=======
+      <i class="fa fa-hospital" aria-hidden="true"></i>
+>>>>>>> 6b806cfba821cf4eac19a5459c1463f4912e2b01
     </div>
     <div class="sidebar-brand-text mx-3">HMS</div>
   </a>
 
+<<<<<<< HEAD
   <!-- Divider -->
   <hr class="sidebar-divider my-0">
 
   <!-- Nav Item - Dashboard -->
   <li class="nav-item active">
+=======
+  <!-- Divider --> 
+  <hr class="sidebar-divider my-0">
+
+  <!-- Nav Item - Dashboard -->
+  <li class="nav-item active" *ngIf="role=='SuperAdmin'">
+>>>>>>> 6b806cfba821cf4eac19a5459c1463f4912e2b01
     <a class="nav-link" href="index.html">
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span>
     </a>
   </li>
+<<<<<<< HEAD
   <li class="nav-item">
+=======
+  <li class="nav-item" *ngIf="role=='SuperAdmin' || role=='Admin'">
+>>>>>>> 6b806cfba821cf4eac19a5459c1463f4912e2b01
     <a class="nav-link" routerLink="medicines">
       <i class="fas fa-fw fa-table"></i>
       <span>Manage Medicines</span>
     </a>
   </li>
+<<<<<<< HEAD
   <li class="nav-item">
     <a class="nav-link" routerLink="bill">
       <i class="fas fa-fw fa-table"></i>
@@ -32,5 +49,21 @@
     </a>
   </li>
 
+=======
+  <li class="nav-item" *ngIf="role=='SuperAdmin' || role=='Admin'">
+    <a class="nav-link" routerLink="bills">
+      <i class="fas fa-fw fa-table"></i>
+      <span>Manage Bills</span>
+    </a>
+  </li>
+  <li class="nav-item"  *ngIf="role=='SuperAdmin' || role=='Admin'">
+    <a class="nav-link" routerLink="inventory">
+      <i class="fas fa-fw fa-table"></i>
+      <span>Inventory</span>
+    </a>
+  </li>
+
+
+>>>>>>> 6b806cfba821cf4eac19a5459c1463f4912e2b01
 </ul>
 <!-- End of Sidebar -->

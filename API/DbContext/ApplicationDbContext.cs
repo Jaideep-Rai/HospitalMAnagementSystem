@@ -1,4 +1,7 @@
-﻿using API.UpdateUserDb;
+﻿
+using DTO;
+using DTO.UserMaster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -6,22 +9,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace API.Dbcontext
 {
-    public class ApplicationDbContext : IdentityDbContext<UserField>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseMySql(GetConnectionString());
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        { 
         }
-        IConfiguration _configuration;
-        public ApplicationDbContext(IConfiguration iconfiguration)
-        {
-            _configuration = iconfiguration;
-        }
-        public string GetConnectionString()
-        {
-            //=======DbConnection For JWT=========//
-            string connectionstring = _configuration.GetSection("ConnectionStrings").GetSection("DefaultConnectionLocal").Value;
-            return connectionstring;
-        }
+
+        public DbSet<Students> Students { get; set; }
+ 
+        // Add other Db tables here
     }
 }
