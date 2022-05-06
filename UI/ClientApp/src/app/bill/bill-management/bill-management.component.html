@@ -1,0 +1,75 @@
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <h1 class="h3 mb-4 text-gray-800 text-center text-uppercase">add Bill</h1>
+
+  <div class="card shadow" style="width:60rem; height:20rem;">
+    <form class="container" #form ngNativeValidate>
+
+
+      <div class="col-md-12 mt-4">
+        <div class="row">
+
+          <div class="col-md-4">
+            <label class="w-100"><b>Patient ID</b> <small class="req">*</small></label>
+            <input type="number" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bill.patient">
+          </div>
+
+          <div class="col-md-4">
+            <label class="w-100"><b>Diagnostic Tests</b> <small class="req">*</small></label>
+            <select class="form-control form-control-sm" required
+                    [ngModelOptions]="{standalone:true}" [(ngModel)]="bill.tests" (change)="diagnosticChangeCharges($event)">
+              <option value="bloodtest">Blood test</option>
+              <option value="ctscan">CT Scan</option>
+              <option value="ecg">Electrocardiogram ECG</option>
+              <option value="kft">Kidney function test (KFT)</option>
+              <option value="lft">Liver function test (LFT)</option>
+              <option value="mri">MRI</option>
+              <option value="ultrasound">Ultrasound</option>
+              <option value="xray">X-rays</option>
+            </select>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <label class="w-100"><b>Medicine prescribed</b> <small class="req">*</small></label>
+            <input type="text" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bill.prescribed">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="row">
+       
+          <div class="col-md-4">
+            <label class="w-100"><b>Diagnostic Charges</b> <small class="req">*</small></label>
+            <input type="number" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bill.charges" >
+          </div>
+
+          <div class="col-md-4">
+            <label class="w-100"><b>Medicine Charges</b> <small class="req">*</small></label>
+            <input type="number" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bill.medicine" (input)="calculateTotal($event)">
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <label class="w-100"><b>Total</b> <small class="req">*</small></label>
+            <input type="number" class="form-control form-control-sm" required
+                   [ngModelOptions]="{standalone:true}" [(ngModel)]="bill.total">
+          </div>
+        </div>
+      </div>
+
+
+          <div class="btn-sm pr-4 ml-2">
+            <button class="btn btn-primary btn-sm p-2 text-center"
+                    (click)="form.checkValidity()?save():null">
+              Submit
+            </button>
+          </div>
+
+    </form>
+  </div>
+</div>

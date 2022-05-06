@@ -111,12 +111,7 @@ namespace API
                 app.UseHsts();
             }
 
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(
-            Path.Combine(env.ContentRootPath, "assets")),
-                RequestPath = "/assets"
-            });
+           
 
             app.UseSwagger();
             app.UseSwaggerUI(o =>

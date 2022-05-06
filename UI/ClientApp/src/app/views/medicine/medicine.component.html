@@ -1,0 +1,60 @@
+ <!-- Begin Page Content -->
+<div class="container-fluid">
+
+ <div class="row">
+   <div class="col-10"> <h1 class="h3 mb-2 text-gray-800">All Medicines</h1></div>
+   <div class="col-2">
+     <a routerLink="add" class="btn btn-primary">Add Medicine</a>
+   </div>
+ </div>
+ 
+
+
+  <!-- DataTales Example -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Sl.no</th>
+              <th>Medicine Name</th>
+              <th>Composition</th>
+              <th>Quantity</th>
+              <th>Company Name</th>
+              <th>Price</th>
+              <th>Batch ID</th>
+              <th>Mfd Date</th>
+              <th>Expiry Date</th>
+              <th>Medicine Category</th>
+              <th>Availability</th>
+              <th>Price</th>
+
+            </tr>
+          </thead>
+        <tbody>
+          <tr *ngFor="let medicine of medicines;let i=index">
+            <td>{{i+1}}</td>
+            <td>{{medicine.name}}</td>
+            <td>{{medicine.mg}}</td>
+            <td>{{medicine.quantity}}</td>
+            <td>{{medicine.company}}</td>
+            <td>{{medicine.batchid}}</td>
+            <td>{{medicine.mfd}}</td>
+            <td>{{medicine.exp}}</td>
+            <td>{{medicine.category}}</td>
+            <td>{{medicine.availability}}</td>
+            <td>{{medicine.price}}</td>
+            <td>
+              <span (click)="edit(medicine)"><i class="fa fa-edit "></i></span>
+              <span (click)="delete(medicine)"><i class="fa fa-trash ml-3"></i></span>
+            </td>
+          </tr>
+        </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- /.container-fluid -->

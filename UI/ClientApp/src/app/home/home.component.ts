@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
 })
 export class HomeComponent {
  name:any;
- select:any = '';
+ select:any;
  quantity:any;
  price:any;
  

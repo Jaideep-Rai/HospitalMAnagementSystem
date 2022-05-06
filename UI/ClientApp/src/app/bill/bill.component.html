@@ -1,0 +1,49 @@
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-10"> <h1 class="h3 mb-2 text-gray-800">BILL MANAGEMENT</h1></div>
+    <div class="col-2">
+      <a routerLink="add" class="btn btn-primary">Add Bill</a>
+    </div>
+  </div>
+
+
+
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Sl.no</th>
+              <th>Patient ID</th>
+              <th>Diagnostic Tests</th>
+              <th>Medicine Prescribed</th>
+              <th>Diagnostic Charges</th>
+              <th>Medicine Charges</th>           
+              <th>Total</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bill of bills;let i=index">
+              <td>{{i+1}}</td>
+              <td>{{bill.patient}}</td>
+              <td>{{bill.tests}}</td>
+              <td>{{bill.prescribed}}</td>
+              <td>{{bill.charges}}</td>
+              <td>{{bill.medicine}}</td>
+              <td>{{bill.total}}</td>
+              <td>
+                <span (click)="edit(bill)"><i class="fa fa-edit "></i></span>
+                <span (click)="delete(bill)"><i class="fa fa-trash ml-3"></i></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
